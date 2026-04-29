@@ -13,12 +13,12 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const examsRes = await axios.get('http://localhost:5000/api/student/exams', {
+      const examsRes = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/student/exams`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setExams(examsRes.data);
 
-      const leaderRes = await axios.get('http://localhost:5000/api/student/leaderboard', {
+      const leaderRes = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/student/leaderboard`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setLeaderboard(leaderRes.data);
@@ -28,7 +28,7 @@ const StudentDashboard = () => {
 
   const handleStart = async (examId) => {
     try {
-      await axios.post(`http://localhost:5000/api/student/exams/${examId}/start`, {}, {
+      await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/student/exams/${examId}/start`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       navigate(`/student/exam/${examId}`);

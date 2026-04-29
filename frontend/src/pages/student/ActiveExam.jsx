@@ -20,7 +20,7 @@ const ActiveExam = () => {
   useEffect(() => {
     const initExam = async () => {
       try {
-        const qRes = await axios.get(`http://localhost:5000/api/student/exams/${id}/questions`, {
+        const qRes = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/student/exams/${id}/questions`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         setQuestions(qRes.data);
@@ -115,7 +115,7 @@ const ActiveExam = () => {
   const handleSubmit = async () => {
     try {
       clearInterval(timerRef.current);
-      const res = await axios.post(`http://localhost:5000/api/student/exams/${id}/submit`, { answers }, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/student/exams/${id}/submit`, { answers }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       alert(`Exam submitted! Your score: ${res.data.score}`);

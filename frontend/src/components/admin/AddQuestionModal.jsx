@@ -27,7 +27,7 @@ const AddQuestionModal = ({ exam, onClose, onQuestionAdded }) => {
         options: formData.type === 'MCQ' ? options.filter(o => o.trim() !== '') : null
       };
 
-      await axios.post(`http://localhost:5000/api/admin/exams/${exam.id}/questions`, payload);
+      await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/exams/${exam.id}/questions`, payload);
       onQuestionAdded();
       
       // Reset form

@@ -10,7 +10,7 @@ const AdminDashboard = () => {
   const { t } = useLanguage();
 
   const fetchExams = async () => {
-    const res = await axios.get('http://localhost:5000/api/admin/exams');
+    const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/exams`);
     setExams(res.data);
   };
 
@@ -20,7 +20,7 @@ const AdminDashboard = () => {
 
   const handleCreateExam = async (e) => {
     e.preventDefault();
-    await axios.post('http://localhost:5000/api/admin/exams', {
+    await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/exams`, {
       title: newExam.title,
       duration: parseInt(newExam.duration)
     });

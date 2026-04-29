@@ -8,7 +8,7 @@ const ResultDetailModal = ({ result, onClose }) => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/admin/exams/${result.examId}/questions`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/exams/${result.examId}/questions`);
         setQuestions(res.data);
       } catch (error) {
         console.error('Failed to fetch questions', error);
