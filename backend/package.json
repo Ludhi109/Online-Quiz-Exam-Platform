@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npx prisma db push && node seed.js && node src/index.js",
+    "start": "DATABASE_URL=file:./dev.db npx prisma db push --accept-data-loss && DATABASE_URL=file:./dev.db node seed.js && DATABASE_URL=file:./dev.db node src/index.js",
     "dev": "nodemon src/index.js"
   },
   "keywords": [],
