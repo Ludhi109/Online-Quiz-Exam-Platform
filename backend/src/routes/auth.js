@@ -31,10 +31,19 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, portalRole } = req.body;
   try {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+
+    // Validate the portal role if provided
+    if (portalRole && user.role !== portalRole) {
+      if (portalRole === 'ADMIN') {
+        return res.status(403).json({ error: 'Access denied: You are not an administrator' });
+      } else {
+        return res.status(403).json({ error: 'Access denied: Administrators must use the Admin portal' });
+      }
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });

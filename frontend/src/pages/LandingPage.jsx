@@ -7,11 +7,19 @@ const LandingPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleLaunch = () => {
-    if (user) {
-      navigate(user.role === 'ADMIN' ? '/admin' : '/student');
+  const handleAdminLogin = () => {
+    if (user && user.role === 'ADMIN') {
+      navigate('/admin');
     } else {
-      navigate('/login');
+      navigate('/admin-login');
+    }
+  };
+
+  const handleStudentLogin = () => {
+    if (user && user.role === 'STUDENT') {
+      navigate('/student');
+    } else {
+      navigate('/student-login');
     }
   };
 
@@ -24,9 +32,12 @@ const LandingPage = () => {
         <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
           A modern, secure, and intuitive platform for taking and managing examinations.
         </p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-          <button onClick={handleLaunch} className="btn-primary" style={{ fontSize: '1.2rem', padding: '1rem 2.5rem' }}>
-            {t('launch')}
+        <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button onClick={handleAdminLogin} className="btn-primary" style={{ fontSize: '1.1rem', padding: '1rem 2rem', background: 'transparent', border: '2px solid var(--accent-primary)' }}>
+            Login as Admin
+          </button>
+          <button onClick={handleStudentLogin} className="btn-primary" style={{ fontSize: '1.1rem', padding: '1rem 2rem' }}>
+            Login as Student
           </button>
         </div>
       </div>
