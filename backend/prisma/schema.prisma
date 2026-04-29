@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  role      String    @default("STUDENT") // ADMIN, STUDENT
+  name      String
+  attempts  Attempt[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Exam {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String?
+  duration    Int        // duration in minutes
+  isActive    Boolean    @default(true)
+  questions   Question[]
+  attempts    Attempt[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Question {
+  id            Int     @id @default(autoincrement())
+  examId        Int
+  exam          Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  type          String  // MCQ, SHORT_ANSWER, CODING
+  text          String
+  options       String? // JSON string of options if MCQ
+  correctAnswer String  // correct option or text
+  marks         Int     @default(1)
+}
+
+model Attempt {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  examId    Int
+  exam      Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+  score     Int?      // Null until calculated
+  startTime DateTime  @default(now())
+  endTime   DateTime? // When it was submitted
+  answers   String?   // JSON string of user's answers
+  status    String    @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED
+}
