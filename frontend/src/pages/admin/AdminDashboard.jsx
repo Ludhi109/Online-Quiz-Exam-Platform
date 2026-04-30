@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import DashboardCards from '../../components/admin/ui/DashboardCards';
@@ -12,6 +13,7 @@ const AdminDashboard = () => {
   const [activeSectionTab, setActiveSectionTab] = useState('management');
   const [isCreating, setIsCreating] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const navigate = useNavigate();
 
   const fetchExams = async () => {
     try {
@@ -29,18 +31,23 @@ const AdminDashboard = () => {
   const handleCreateExam = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/exams`, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/exams`, {
         title: newExam.title,
         description: newExam.description,
         duration: parseInt(newExam.duration),
         totalQuestions: parseInt(newExam.totalQuestions),
         language: newExam.language
       });
-      setNewExam({ title: '', description: '', duration: 30, totalQuestions: 10, language: 'English' });
-      setIsCreating(false);
-      setSuccessMsg('Exam created successfully!');
-      setTimeout(() => setSuccessMsg(''), 3000);
-      fetchExams();
+      
+      // Redirect to Add Questions page automatically
+      if (res.data && res.data.id) {
+        navigate(`/admin/exams/${res.data.id}/questions`);
+      } else {
+        // Fallback just in case
+        setNewExam({ title: '', description: '', duration: 30, totalQuestions: 10, language: 'English' });
+        setIsCreating(false);
+        fetchExams();
+      }
     } catch (error) {
       console.error("Failed to create exam", error);
       alert('Failed to create exam. Please check all fields.');
