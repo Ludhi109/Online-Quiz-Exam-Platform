@@ -8,6 +8,7 @@ import AdminLogin from './pages/auth/AdminLogin';
 import StudentLogin from './pages/auth/StudentLogin';
 import Register from './pages/auth/Register';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import ManageQuestions from './pages/admin/ManageQuestions';
 import StudentDashboard from './pages/student/StudentDashboard';
 import ActiveExam from './pages/student/ActiveExam';
 
@@ -18,25 +19,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   return children;
 };
 
-const Header = () => {
-  const { user, logout } = useAuth();
-
-  return (
-    <header style={{ padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--glass-border)' }}>
-      <h2 style={{ color: 'var(--accent-primary)', fontWeight: '700' }}><a href="/">QuizMaster</a></h2>
-      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        {user ? (
-          <button onClick={logout} className="btn-danger">Logout</button>
-        ) : (
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <a href="/" className="btn-primary" style={{ background: 'transparent', border: '1px solid var(--accent-primary)', color: 'var(--accent-primary)' }}>Login</a>
-            <a href="/register" className="btn-primary">Register</a>
-          </div>
-        )}
-      </div>
-    </header>
-  );
-};
+// Global Header removed as pages handle their own navigation
 
 function App() {
   return (
@@ -47,24 +30,20 @@ function App() {
             {/* Full Screen Landing Page */}
             <Route path="/" element={<LandingPage />} />
 
-            {/* Public Routes with Global Header */}
-            <Route path="/*" element={
-              <>
-                <Header />
-                <main style={{ padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <Routes>
-                    <Route path="/admin-login" element={<AdminLogin />} />
-                    <Route path="/student-login" element={<StudentLogin />} />
-                    <Route path="/register" element={<Register />} />
-                  </Routes>
-                </main>
-              </>
-            } />
+            {/* Full Screen Auth Routes */}
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/student-login" element={<StudentLogin />} />
+            <Route path="/register" element={<Register />} />
             
             {/* Dashboard Routes without global Header */}
             <Route path="/admin/*" element={
               <ProtectedRoute requiredRole="ADMIN">
                 <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/exams/:examId/questions" element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <ManageQuestions />
               </ProtectedRoute>
             } />
             

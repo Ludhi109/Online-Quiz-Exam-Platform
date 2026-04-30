@@ -1,6 +1,9 @@
 import { Plus, BarChart2, Trash2, Edit3, Eye, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const ExamsTable = ({ exams, onAddQuestions, onDelete }) => {
+const ExamsTable = ({ exams, onDelete }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-slate-800 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-700/50 overflow-hidden">
       <div className="overflow-x-auto">
@@ -31,7 +34,7 @@ const ExamsTable = ({ exams, onAddQuestions, onDelete }) => {
                 <td className="p-4 text-right">
                   <div className="flex items-center justify-end gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
                     <button 
-                      onClick={() => onAddQuestions(exam)}
+                      onClick={() => navigate(`/admin/exams/${exam.id}/questions`)}
                       className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-indigo-400 hover:text-white hover:bg-indigo-500 rounded-md transition-all border border-transparent hover:border-indigo-400/30"
                       title="Add Questions"
                     >

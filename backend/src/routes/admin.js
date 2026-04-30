@@ -84,7 +84,7 @@ router.get('/exams/:examId/questions', async (req, res) => {
 });
 
 router.post('/exams/:examId/questions', async (req, res) => {
-  const { type, text, options, correctAnswer, marks } = req.body;
+  const { type, text, options, correctAnswer, marks, inputFormat, outputFormat, sampleInput, sampleOutput } = req.body;
   try {
     const question = await prisma.question.create({
       data: {
@@ -93,7 +93,11 @@ router.post('/exams/:examId/questions', async (req, res) => {
         text,
         options: options ? JSON.stringify(options) : null,
         correctAnswer,
-        marks: marks || 1
+        marks: marks || 1,
+        inputFormat: inputFormat || null,
+        outputFormat: outputFormat || null,
+        sampleInput: sampleInput || null,
+        sampleOutput: sampleOutput || null
       }
     });
     res.status(201).json(question);

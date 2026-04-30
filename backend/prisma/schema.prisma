@@ -41,6 +41,10 @@ model Question {
   options       String? // JSON string of options if MCQ
   correctAnswer String  // correct option or text
   marks         Int     @default(1)
+  inputFormat   String?
+  outputFormat  String?
+  sampleInput   String?
+  sampleOutput  String?
 }
 
 model Attempt {

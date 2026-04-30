@@ -3,13 +3,11 @@ import axios from 'axios';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import DashboardCards from '../../components/admin/ui/DashboardCards';
 import ExamsTable from '../../components/admin/ui/ExamsTable';
-import AddQuestionModal from '../../components/admin/AddQuestionModal';
 import { LayoutDashboard, FileText, Users, Award, Search, Plus, Sparkles } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [exams, setExams] = useState([]);
   const [newExam, setNewExam] = useState({ title: '', description: '', duration: 30, totalQuestions: 10, language: 'English' });
-  const [selectedExamForQuestion, setSelectedExamForQuestion] = useState(null);
   const [activeLayoutTab, setActiveLayoutTab] = useState('exams'); 
   const [activeSectionTab, setActiveSectionTab] = useState('management');
   const [isCreating, setIsCreating] = useState(false);
@@ -237,7 +235,6 @@ const AdminDashboard = () => {
 
             <ExamsTable 
               exams={exams} 
-              onAddQuestions={(exam) => setSelectedExamForQuestion(exam)}
               onDelete={handleDeleteExam}
             />
           </div>
@@ -251,14 +248,6 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
-
-      {selectedExamForQuestion && (
-        <AddQuestionModal 
-          exam={selectedExamForQuestion} 
-          onClose={() => setSelectedExamForQuestion(null)} 
-          onQuestionAdded={fetchExams}
-        />
-      )}
     </DashboardLayout>
   );
 };
