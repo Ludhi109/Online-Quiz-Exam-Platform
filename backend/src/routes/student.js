@@ -97,10 +97,12 @@ router.post('/exams/:id/submit', async (req, res) => {
 
     const questions = await prisma.question.findMany({ where: { examId } });
     let score = 0;
+    let correctAnswers = 0;
 
     questions.forEach(q => {
-      if (answers && answers[q.id] && answers[q.id].toLowerCase() === q.correctAnswer.toLowerCase()) {
+      if (answers && answers[q.id] && q.correctAnswer && answers[q.id].toLowerCase() === q.correctAnswer.toLowerCase()) {
         score += q.marks;
+        correctAnswers++;
       }
     });
 
@@ -114,7 +116,7 @@ router.post('/exams/:id/submit', async (req, res) => {
       }
     });
 
-    res.json(completedAttempt);
+    res.json({ ...completedAttempt, correctAnswers, totalQuestions: questions.length });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }

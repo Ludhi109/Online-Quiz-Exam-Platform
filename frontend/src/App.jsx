@@ -11,6 +11,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageQuestions from './pages/admin/ManageQuestions';
 import StudentDashboard from './pages/student/StudentDashboard';
 import ActiveExam from './pages/student/ActiveExam';
+import ExamResult from './pages/student/ExamResult';
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
@@ -56,6 +57,11 @@ function App() {
             <Route path="/student/exam/:id" element={
               <ProtectedRoute requiredRole="STUDENT">
                 <ActiveExam />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/exam/:id/result" element={
+              <ProtectedRoute requiredRole="STUDENT">
+                <ExamResult />
               </ProtectedRoute>
             } />
           </Routes>
