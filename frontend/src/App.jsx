@@ -43,33 +43,41 @@ function App() {
     <LanguageProvider>
       <AuthProvider>
         <Router>
-          <Header />
-          <main style={{ padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/admin-login" element={<AdminLogin />} />
-              <Route path="/student-login" element={<StudentLogin />} />
-              <Route path="/register" element={<Register />} />
-              
-              <Route path="/admin/*" element={
-                <ProtectedRoute requiredRole="ADMIN">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/student" element={
-                <ProtectedRoute requiredRole="STUDENT">
-                  <StudentDashboard />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/student/exam/:id" element={
-                <ProtectedRoute requiredRole="STUDENT">
-                  <ActiveExam />
-                </ProtectedRoute>
-              } />
-            </Routes>
-          </main>
+          <Routes>
+            {/* Public Routes with Header */}
+            <Route path="/*" element={
+              <>
+                <Header />
+                <main style={{ padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/admin-login" element={<AdminLogin />} />
+                    <Route path="/student-login" element={<StudentLogin />} />
+                    <Route path="/register" element={<Register />} />
+                  </Routes>
+                </main>
+              </>
+            } />
+            
+            {/* Dashboard Routes without global Header */}
+            <Route path="/admin/*" element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/student" element={
+              <ProtectedRoute requiredRole="STUDENT">
+                <StudentDashboard />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/student/exam/:id" element={
+              <ProtectedRoute requiredRole="STUDENT">
+                <ActiveExam />
+              </ProtectedRoute>
+            } />
+          </Routes>
         </Router>
       </AuthProvider>
     </LanguageProvider>
