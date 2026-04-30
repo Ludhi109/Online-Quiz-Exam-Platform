@@ -23,7 +23,11 @@ const StudentLogin = () => {
       login(res.data.token, res.data.user);
       navigate('/student');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
+      if (!err.response) {
+        setError('Network Error: Could not connect to backend. Please check VITE_API_URL in Vercel.');
+      } else {
+        setError(err.response?.data?.error || 'Invalid credentials');
+      }
     }
   };
 
