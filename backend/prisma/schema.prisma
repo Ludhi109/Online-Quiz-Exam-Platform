@@ -19,15 +19,17 @@ model User {
 }
 
 model Exam {
-  id          Int        @id @default(autoincrement())
-  title       String
-  description String?
-  duration    Int        // duration in minutes
-  isActive    Boolean    @default(true)
-  questions   Question[]
-  attempts    Attempt[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id             Int        @id @default(autoincrement())
+  title          String
+  description    String?
+  duration       Int        // duration in minutes
+  totalQuestions Int        @default(0)
+  language       String     @default("English")
+  isActive       Boolean    @default(true)
+  questions      Question[]
+  attempts       Attempt[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 }
 
 model Question {

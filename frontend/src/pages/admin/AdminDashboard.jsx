@@ -8,11 +8,12 @@ import { LayoutDashboard, FileText, Users, Award, Search, Plus, Sparkles } from 
 
 const AdminDashboard = () => {
   const [exams, setExams] = useState([]);
-  const [newExam, setNewExam] = useState({ title: '', duration: 30 });
+  const [newExam, setNewExam] = useState({ title: '', description: '', duration: 30, totalQuestions: 10, language: 'English' });
   const [selectedExamForQuestion, setSelectedExamForQuestion] = useState(null);
   const [activeLayoutTab, setActiveLayoutTab] = useState('exams'); 
   const [activeSectionTab, setActiveSectionTab] = useState('management');
   const [isCreating, setIsCreating] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
 
   const fetchExams = async () => {
     try {
@@ -32,13 +33,19 @@ const AdminDashboard = () => {
     try {
       await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/exams`, {
         title: newExam.title,
-        duration: parseInt(newExam.duration)
+        description: newExam.description,
+        duration: parseInt(newExam.duration),
+        totalQuestions: parseInt(newExam.totalQuestions),
+        language: newExam.language
       });
-      setNewExam({ title: '', duration: 30 });
+      setNewExam({ title: '', description: '', duration: 30, totalQuestions: 10, language: 'English' });
       setIsCreating(false);
+      setSuccessMsg('Exam created successfully!');
+      setTimeout(() => setSuccessMsg(''), 3000);
       fetchExams();
     } catch (error) {
       console.error("Failed to create exam", error);
+      alert('Failed to create exam. Please check all fields.');
     }
   };
 
@@ -137,38 +144,91 @@ const AdminDashboard = () => {
               </div>
             </div>
 
+            {/* Success Message */}
+            {successMsg && (
+              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg flex items-center gap-2 animate-fade-in shadow-lg shadow-emerald-500/10">
+                <Sparkles size={18} />
+                <span className="font-medium">{successMsg}</span>
+              </div>
+            )}
+
             {/* Create Exam Form (Conditional) */}
             {isCreating && (
               <div className="bg-slate-800/80 p-6 rounded-xl border border-slate-700 animate-fade-in shadow-xl backdrop-blur-sm">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-white">Create New Exam</h3>
-                  <button onClick={() => setIsCreating(false)} className="text-slate-400 hover:text-white transition-colors">✕</button>
+                <div className="flex justify-between items-center mb-6 border-b border-slate-700/50 pb-4">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Plus size={20} className="text-indigo-400"/> Create New Exam
+                  </h3>
+                  <button onClick={() => setIsCreating(false)} className="text-slate-400 hover:text-white hover:bg-slate-700 p-1 rounded-md transition-colors">✕</button>
                 </div>
-                <form onSubmit={handleCreateExam} className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex-1">
-                    <label className="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Exam Title</label>
-                    <input 
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" 
-                      placeholder="e.g. Midterm Mathematics" 
-                      value={newExam.title} 
-                      onChange={(e) => setNewExam({...newExam, title: e.target.value})} 
-                      required 
-                    />
+                
+                <form onSubmit={handleCreateExam} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Exam Title *</label>
+                      <input 
+                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600" 
+                        placeholder="e.g. Midterm Mathematics" 
+                        value={newExam.title} 
+                        onChange={(e) => setNewExam({...newExam, title: e.target.value})} 
+                        required 
+                      />
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Description</label>
+                      <textarea 
+                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600 resize-none h-24" 
+                        placeholder="Briefly describe what this exam covers..." 
+                        value={newExam.description} 
+                        onChange={(e) => setNewExam({...newExam, description: e.target.value})} 
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Duration (minutes) *</label>
+                      <input 
+                        type="number" 
+                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" 
+                        placeholder="30" 
+                        value={newExam.duration} 
+                        onChange={(e) => setNewExam({...newExam, duration: e.target.value})} 
+                        required 
+                        min="1"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Total Questions *</label>
+                      <input 
+                        type="number" 
+                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" 
+                        placeholder="10" 
+                        value={newExam.totalQuestions} 
+                        onChange={(e) => setNewExam({...newExam, totalQuestions: e.target.value})} 
+                        required 
+                        min="1"
+                      />
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Language *</label>
+                      <select 
+                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all appearance-none" 
+                        value={newExam.language} 
+                        onChange={(e) => setNewExam({...newExam, language: e.target.value})} 
+                        required
+                      >
+                        <option value="English">English</option>
+                        <option value="Telugu">Telugu</option>
+                        <option value="Hindi">Hindi</option>
+                      </select>
+                    </div>
                   </div>
-                  <div className="w-full sm:w-32">
-                    <label className="block text-xs font-medium text-slate-400 mb-1.5 ml-1">Duration (min)</label>
-                    <input 
-                      type="number" 
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" 
-                      placeholder="30" 
-                      value={newExam.duration} 
-                      onChange={(e) => setNewExam({...newExam, duration: e.target.value})} 
-                      required 
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <button type="submit" className="w-full sm:w-auto px-8 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition-colors h-[46px] shadow-lg shadow-indigo-500/20">
-                      Save Exam
+
+                  <div className="flex justify-end pt-4 mt-2 border-t border-slate-700/50">
+                    <button type="submit" className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-lg transition-all shadow-lg shadow-indigo-500/25 active:scale-95 flex items-center gap-2">
+                      <Plus size={18} /> Save & Create Exam
                     </button>
                   </div>
                 </form>

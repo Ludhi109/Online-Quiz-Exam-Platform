@@ -24,10 +24,17 @@ router.get('/exams', async (req, res) => {
 });
 
 router.post('/exams', async (req, res) => {
-  const { title, description, duration, isActive } = req.body;
+  const { title, description, duration, totalQuestions, language, isActive } = req.body;
   try {
     const exam = await prisma.exam.create({
-      data: { title, description, duration, isActive: isActive !== undefined ? isActive : true }
+      data: { 
+        title, 
+        description, 
+        duration: parseInt(duration), 
+        totalQuestions: parseInt(totalQuestions) || 0,
+        language: language || 'English',
+        isActive: isActive !== undefined ? isActive : true 
+      }
     });
     res.status(201).json(exam);
   } catch (error) {
@@ -36,11 +43,18 @@ router.post('/exams', async (req, res) => {
 });
 
 router.put('/exams/:id', async (req, res) => {
-  const { title, description, duration, isActive } = req.body;
+  const { title, description, duration, totalQuestions, language, isActive } = req.body;
   try {
     const exam = await prisma.exam.update({
       where: { id: parseInt(req.params.id) },
-      data: { title, description, duration, isActive }
+      data: { 
+        title, 
+        description, 
+        duration: parseInt(duration),
+        totalQuestions: parseInt(totalQuestions) || 0,
+        language: language || 'English',
+        isActive 
+      }
     });
     res.json(exam);
   } catch (error) {

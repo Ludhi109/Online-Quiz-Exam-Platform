@@ -44,13 +44,15 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
-            {/* Public Routes with Header */}
+            {/* Full Screen Landing Page */}
+            <Route path="/" element={<LandingPage />} />
+
+            {/* Public Routes with Global Header */}
             <Route path="/*" element={
               <>
                 <Header />
                 <main style={{ padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <Routes>
-                    <Route path="/" element={<LandingPage />} />
                     <Route path="/admin-login" element={<AdminLogin />} />
                     <Route path="/student-login" element={<StudentLogin />} />
                     <Route path="/register" element={<Register />} />
