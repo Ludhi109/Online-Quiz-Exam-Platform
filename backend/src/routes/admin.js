@@ -23,22 +23,41 @@ router.get('/exams', async (req, res) => {
   }
 });
 
+const { z } = require('zod');
+const db = require('../db');
+const { exams } = require('../db/schema');
+
+const examSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  duration: z.coerce.number().min(1, 'Duration must be at least 1 minute'),
+  totalQuestions: z.coerce.number().min(0).default(0),
+  language: z.string().default('English'),
+  isActive: z.boolean().default(true)
+});
+
 router.post('/exams', async (req, res) => {
-  const { title, description, duration, totalQuestions, language, isActive } = req.body;
+  console.log('Received POST /exams request body:', req.body);
   try {
-    const exam = await prisma.exam.create({
-      data: { 
-        title, 
-        description, 
-        duration: parseInt(duration), 
-        totalQuestions: parseInt(totalQuestions) || 0,
-        language: language || 'English',
-        isActive: isActive !== undefined ? isActive : true 
-      }
-    });
-    res.status(201).json(exam);
+    const validatedData = examSchema.parse(req.body);
+
+    const newExam = await db.insert(exams).values({
+      title: validatedData.title,
+      description: validatedData.description,
+      duration: validatedData.duration,
+      totalQuestions: validatedData.totalQuestions,
+      language: validatedData.language,
+      isActive: validatedData.isActive
+    }).returning();
+
+    console.log('Exam saved successfully using Drizzle:', newExam[0]);
+    res.status(201).json(newExam[0]);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Error creating exam:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
+    res.status(500).json({ error: 'Server error', message: error.message });
   }
 });
 

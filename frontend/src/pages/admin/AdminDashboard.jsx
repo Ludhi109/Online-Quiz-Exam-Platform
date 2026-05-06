@@ -9,11 +9,10 @@ import { LayoutDashboard, FileText, Users, Award, Search, Plus, Sparkles } from 
 const AdminDashboard = () => {
   const [exams, setExams] = useState([]);
   const [newExam, setNewExam] = useState({ title: '', description: '', duration: 30, totalQuestions: 10, language: 'English' });
-  const [activeLayoutTab, setActiveLayoutTab] = useState('exams'); 
+  const [activeLayoutTab, setActiveLayoutTab] = useState('dashboard'); 
   const [activeSectionTab, setActiveSectionTab] = useState('management');
   const [isCreating, setIsCreating] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
-  const navigate = useNavigate();
 
   const fetchExams = async () => {
     try {
@@ -30,6 +29,12 @@ const AdminDashboard = () => {
 
   const handleCreateExam = async (e) => {
     e.preventDefault();
+    
+    if (!newExam.title || !newExam.duration) {
+      alert('Title and Duration are required fields.');
+      return;
+    }
+
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/exams`, {
         title: newExam.title,
@@ -39,18 +44,17 @@ const AdminDashboard = () => {
         language: newExam.language
       });
       
-      // Redirect to Add Questions page automatically
-      if (res.data && res.data.id) {
-        navigate(`/admin/exams/${res.data.id}/questions`);
-      } else {
-        // Fallback just in case
-        setNewExam({ title: '', description: '', duration: 30, totalQuestions: 10, language: 'English' });
-        setIsCreating(false);
-        fetchExams();
-      }
+      console.log('API Response:', res.data);
+      setSuccessMsg('Exam created successfully!');
+      setNewExam({ title: '', description: '', duration: 30, totalQuestions: 10, language: 'English' });
+      setIsCreating(false);
+      
+      await fetchExams(); // Await the fetch to ensure list updates before continuing
+      
+      setTimeout(() => setSuccessMsg(''), 3000);
     } catch (error) {
-      console.error("Failed to create exam", error);
-      alert('Failed to create exam. Please check all fields.');
+      console.error("Failed to create exam:", error.response?.data || error);
+      alert(`Failed to create exam: ${error.response?.data?.error || 'Please check all fields.'}`);
     }
   };
 
@@ -82,176 +86,187 @@ const AdminDashboard = () => {
       headerSubtitle="Manage your exams and track student performance"
     >
       <div className="animate-fade-in pb-12">
-        {/* Stats Cards Section */}
-        <DashboardCards 
-          totalExams={exams.length} 
-          activeStudents="142" 
-          averageScore="76%" 
-        />
-
-        {/* Visual Tabs Section */}
-        <div className="flex border-b border-slate-800 mb-6">
-          <button 
-            onClick={() => setActiveSectionTab('management')}
-            className={`px-6 py-3 font-medium text-sm transition-all relative ${
-              activeSectionTab === 'management' ? 'text-indigo-400' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Exam Management
-            {activeSectionTab === 'management' && (
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] rounded-t-full"></div>
-            )}
-          </button>
-          <button 
-            onClick={() => setActiveSectionTab('results')}
-            className={`px-6 py-3 font-medium text-sm transition-all relative ${
-              activeSectionTab === 'results' ? 'text-indigo-400' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Student Results
-            {activeSectionTab === 'results' && (
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] rounded-t-full"></div>
-            )}
-          </button>
-        </div>
-
-        {/* Content based on Tab */}
-        {activeSectionTab === 'management' && (
+        {activeLayoutTab === 'dashboard' && (
           <div className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h2 className="text-xl font-bold text-white">Manage Exams</h2>
-              
-              <div className="flex flex-col sm:flex-row w-full md:w-auto items-center gap-3">
-                <div className="relative w-full sm:w-64">
-                  <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Search exams..." 
-                    className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700/50 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
-                  />
-                </div>
-                
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <button 
-                    className="flex-1 sm:flex-none flex justify-center items-center gap-2 border border-slate-600 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors"
-                  >
-                    <Sparkles size={16} />
-                    <span>Quick Seed</span>
-                  </button>
-                  <button 
-                    onClick={() => setIsCreating(!isCreating)}
-                    className="flex-1 sm:flex-none flex justify-center items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all active:scale-95 whitespace-nowrap border border-indigo-500/50"
-                  >
-                    <Plus size={18} />
-                    <span>New Exam</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Success Message */}
-            {successMsg && (
-              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg flex items-center gap-2 animate-fade-in shadow-lg shadow-emerald-500/10">
-                <Sparkles size={18} />
-                <span className="font-medium">{successMsg}</span>
-              </div>
-            )}
-
-            {/* Create Exam Form (Conditional) */}
-            {isCreating && (
-              <div className="bg-slate-800/80 p-6 rounded-xl border border-slate-700 animate-fade-in shadow-xl backdrop-blur-sm">
-                <div className="flex justify-between items-center mb-6 border-b border-slate-700/50 pb-4">
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Plus size={20} className="text-indigo-400"/> Create New Exam
-                  </h3>
-                  <button onClick={() => setIsCreating(false)} className="text-slate-400 hover:text-white hover:bg-slate-700 p-1 rounded-md transition-colors">✕</button>
-                </div>
-                
-                <form onSubmit={handleCreateExam} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Exam Title *</label>
-                      <input 
-                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600" 
-                        placeholder="e.g. Midterm Mathematics" 
-                        value={newExam.title} 
-                        onChange={(e) => setNewExam({...newExam, title: e.target.value})} 
-                        required 
-                      />
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Description</label>
-                      <textarea 
-                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600 resize-none h-24" 
-                        placeholder="Briefly describe what this exam covers..." 
-                        value={newExam.description} 
-                        onChange={(e) => setNewExam({...newExam, description: e.target.value})} 
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Duration (minutes) *</label>
-                      <input 
-                        type="number" 
-                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" 
-                        placeholder="30" 
-                        value={newExam.duration} 
-                        onChange={(e) => setNewExam({...newExam, duration: e.target.value})} 
-                        required 
-                        min="1"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Total Questions *</label>
-                      <input 
-                        type="number" 
-                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" 
-                        placeholder="10" 
-                        value={newExam.totalQuestions} 
-                        onChange={(e) => setNewExam({...newExam, totalQuestions: e.target.value})} 
-                        required 
-                        min="1"
-                      />
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Language *</label>
-                      <select 
-                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all appearance-none" 
-                        value={newExam.language} 
-                        onChange={(e) => setNewExam({...newExam, language: e.target.value})} 
-                        required
-                      >
-                        <option value="English">English</option>
-                        <option value="Telugu">Telugu</option>
-                        <option value="Hindi">Hindi</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-4 mt-2 border-t border-slate-700/50">
-                    <button type="submit" className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-lg transition-all shadow-lg shadow-indigo-500/25 active:scale-95 flex items-center gap-2">
-                      <Plus size={18} /> Save & Create Exam
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-
-            <ExamsTable 
-              exams={exams} 
-              onDelete={handleDeleteExam}
+            <DashboardCards 
+              totalExams={exams.length} 
+              activeStudents="142" 
+              averageScore="76%" 
             />
+            <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50 mt-6">
+              <h3 className="text-xl font-bold text-white mb-4">Recent Exams</h3>
+              <ExamsTable exams={exams.slice(0, 5)} onDelete={handleDeleteExam} />
+            </div>
           </div>
         )}
 
-        {activeSectionTab === 'results' && (
-          <div className="flex flex-col items-center justify-center p-16 bg-slate-800/30 rounded-xl border border-slate-700/50 border-dashed mt-4">
-            <Award size={48} className="text-slate-600 mb-4" />
-            <h3 className="text-xl font-medium text-slate-300">Student Results</h3>
-            <p className="text-slate-500 mt-2 text-center max-w-md">Analytics and detailed performance metrics for your students will appear here soon.</p>
+        {activeLayoutTab === 'exams' && (
+          <div className="space-y-6">
+            {/* Visual Tabs Section */}
+            <div className="flex border-b border-slate-800 mb-6">
+              <button 
+                onClick={() => setActiveSectionTab('management')}
+                className={`px-6 py-3 font-medium text-sm transition-all relative ${
+                  activeSectionTab === 'management' ? 'text-indigo-400' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Exam Management
+                {activeSectionTab === 'management' && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] rounded-t-full"></div>
+                )}
+              </button>
+              <button 
+                onClick={() => setActiveSectionTab('results')}
+                className={`px-6 py-3 font-medium text-sm transition-all relative ${
+                  activeSectionTab === 'results' ? 'text-indigo-400' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Student Results
+                {activeSectionTab === 'results' && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] rounded-t-full"></div>
+                )}
+              </button>
+            </div>
+
+            {/* Content based on Tab */}
+            {activeSectionTab === 'management' && (
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <h2 className="text-xl font-bold text-white">Manage Exams</h2>
+                  
+                  <div className="flex flex-col sm:flex-row w-full md:w-auto items-center gap-3">
+                    <div className="relative w-full sm:w-64">
+                      <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input 
+                        type="text" 
+                        placeholder="Search exams..." 
+                        className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700/50 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <button 
+                        className="flex-1 sm:flex-none flex justify-center items-center gap-2 border border-slate-600 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors"
+                      >
+                        <Sparkles size={16} />
+                        <span>Quick Seed</span>
+                      </button>
+                      <button 
+                        onClick={() => setIsCreating(!isCreating)}
+                        className="flex-1 sm:flex-none flex justify-center items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all active:scale-95 whitespace-nowrap border border-indigo-500/50"
+                      >
+                        <Plus size={18} />
+                        <span>New Exam</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Success Message */}
+                {successMsg && (
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-lg flex items-center gap-2 animate-fade-in shadow-lg shadow-emerald-500/10">
+                    <Sparkles size={18} />
+                    <span className="font-medium">{successMsg}</span>
+                  </div>
+                )}
+
+                {/* Create Exam Form (Conditional) */}
+                {isCreating && (
+                  <div className="bg-slate-800/80 p-6 rounded-xl border border-slate-700 animate-fade-in shadow-xl backdrop-blur-sm">
+                    <div className="flex justify-between items-center mb-6 border-b border-slate-700/50 pb-4">
+                      <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Plus size={20} className="text-indigo-400"/> Create New Exam
+                      </h3>
+                      <button onClick={() => setIsCreating(false)} className="text-slate-400 hover:text-white hover:bg-slate-700 p-1 rounded-md transition-colors">✕</button>
+                    </div>
+                    
+                    <form onSubmit={handleCreateExam} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Exam Title *</label>
+                          <input 
+                            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600" 
+                            placeholder="e.g. Midterm Mathematics" 
+                            value={newExam.title} 
+                            onChange={(e) => setNewExam({...newExam, title: e.target.value})} 
+                            required 
+                          />
+                        </div>
+                        
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Description</label>
+                          <textarea 
+                            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600 resize-none h-24" 
+                            placeholder="Briefly describe what this exam covers..." 
+                            value={newExam.description} 
+                            onChange={(e) => setNewExam({...newExam, description: e.target.value})} 
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Duration (minutes) *</label>
+                          <input 
+                            type="number" 
+                            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" 
+                            placeholder="30" 
+                            value={newExam.duration} 
+                            onChange={(e) => setNewExam({...newExam, duration: e.target.value})} 
+                            required 
+                            min="1"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Total Questions *</label>
+                          <input 
+                            type="number" 
+                            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" 
+                            placeholder="10" 
+                            value={newExam.totalQuestions} 
+                            onChange={(e) => setNewExam({...newExam, totalQuestions: e.target.value})} 
+                            required 
+                            min="1"
+                          />
+                        </div>
+                        
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 ml-1">Language *</label>
+                          <select 
+                            className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all appearance-none" 
+                            value={newExam.language} 
+                            onChange={(e) => setNewExam({...newExam, language: e.target.value})} 
+                            required
+                          >
+                            <option value="English">English</option>
+                            <option value="Telugu">Telugu</option>
+                            <option value="Hindi">Hindi</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-4 mt-2 border-t border-slate-700/50">
+                        <button type="submit" className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-lg transition-all shadow-lg shadow-indigo-500/25 active:scale-95 flex items-center gap-2">
+                          <Plus size={18} /> Save & Create Exam
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                <ExamsTable 
+                  exams={exams} 
+                  onDelete={handleDeleteExam}
+                />
+              </div>
+            )}
+
+            {activeSectionTab === 'results' && (
+              <div className="flex flex-col items-center justify-center p-16 bg-slate-800/30 rounded-xl border border-slate-700/50 border-dashed mt-4">
+                <Award size={48} className="text-slate-600 mb-4" />
+                <h3 className="text-xl font-medium text-slate-300">Student Results</h3>
+                <p className="text-slate-500 mt-2 text-center max-w-md">Analytics and detailed performance metrics for your students will appear here soon.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
