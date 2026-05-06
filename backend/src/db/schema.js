@@ -19,8 +19,8 @@ const exams = sqliteTable('Exam', {
   totalQuestions: integer('totalQuestions').notNull().default(0),
   language: text('language').notNull().default('English'),
   isActive: integer('isActive', { mode: 'boolean' }).notNull().default(true),
-  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text('createdAt').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updatedAt').notNull().$defaultFn(() => new Date().toISOString()),
 });
 
 const questions = sqliteTable('Question', {

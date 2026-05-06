@@ -3,7 +3,7 @@ const { createClient } = require('@libsql/client');
 const schema = require('./schema');
 
 // Use Turso if URL is provided and not file-based
-const url = process.env.TURSO_DATABASE_URL || 'file:./dev.db';
+const url = process.env.TURSO_DATABASE_URL || 'file:./prisma/dev.db';
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
 const client = createClient({

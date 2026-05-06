@@ -57,7 +57,7 @@ router.post('/exams', async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation failed', details: error.errors });
     }
-    res.status(500).json({ error: 'Server error', message: error.message });
+    res.status(500).json({ error: 'Server error', message: error.message, cause: error.cause?.message || 'unknown' });
   }
 });
 
