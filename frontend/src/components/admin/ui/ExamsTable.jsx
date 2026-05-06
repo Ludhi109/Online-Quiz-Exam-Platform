@@ -1,7 +1,7 @@
 import { Plus, BarChart2, Trash2, Edit3, Eye, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const ExamsTable = ({ exams, onDelete }) => {
+const ExamsTable = ({ exams, onDelete, onCreateClick }) => {
   const navigate = useNavigate();
 
   return (
