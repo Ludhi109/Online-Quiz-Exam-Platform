@@ -94,8 +94,22 @@ const AdminDashboard = () => {
               averageScore="76%" 
             />
             <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50 mt-6">
-              <h3 className="text-xl font-bold text-white mb-4">Recent Exams</h3>
-              <ExamsTable exams={exams.slice(0, 5)} onDelete={handleDeleteExam} />
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white">Recent Exams</h3>
+                {exams.length > 0 && (
+                  <button 
+                    onClick={() => { setActiveLayoutTab('exams'); setIsCreating(true); }}
+                    className="flex items-center gap-2 bg-indigo-600/20 text-indigo-400 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-indigo-600/30 transition-all border border-indigo-500/30"
+                  >
+                    <Plus size={16} /> New Exam
+                  </button>
+                )}
+              </div>
+              <ExamsTable 
+                exams={exams.slice(0, 5)} 
+                onDelete={handleDeleteExam} 
+                onCreateClick={() => { setActiveLayoutTab('exams'); setIsCreating(true); }}
+              />
             </div>
           </div>
         )}

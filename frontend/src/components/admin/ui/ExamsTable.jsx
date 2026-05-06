@@ -72,7 +72,16 @@ const ExamsTable = ({ exams, onDelete }) => {
                       <FileText size={32} className="text-slate-500" />
                     </div>
                     <p className="font-medium text-slate-300">No exams available.</p>
-                    <p className="text-sm">Create a new exam to get started.</p>
+                    {onCreateClick ? (
+                      <button 
+                        onClick={onCreateClick}
+                        className="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                      >
+                        <Plus size={16} /> Create New Exam
+                      </button>
+                    ) : (
+                      <p className="text-sm">Create a new exam to get started.</p>
+                    )}
                   </div>
                 </td>
               </tr>
